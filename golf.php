@@ -7,11 +7,11 @@ function roles_service_shortcode($atts) {
     // ユーザーの情報を取得
     $user_info = get_userdata($user_id);
 
-    // ユーザーのメールアドレスを取得
-    $first_name = $user_info->first_name;
-    $last_name = $user_info->last_name;
-    $user_email = $user_info->user_email;
-    $user_roles = $user_info->roles;
+    // ユーザーの各情報を取得
+    $first_name = $user_info->first_name; // お名前
+    $last_name = $user_info->last_name; // 苗字
+    $user_email = $user_info->user_email; //メールアドレス
+    $user_roles = $user_info->roles; // 権限
 
     // $wpdbクエリ
     global $wpdb;
