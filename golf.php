@@ -1,7 +1,7 @@
 <?php 
 add_shortcode('roles_service', 'roles_service_shortcode');
 function roles_service_shortcode($atts) {
-    // 現在ログイン中のユーザーのIDを取得
+    // 現在ログイン中のユーザーIDを取得
     $user_id = get_current_user_id();
 
     // ユーザーの情報を取得
