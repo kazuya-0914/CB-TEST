@@ -29,7 +29,7 @@ function roles_service_shortcode($atts) {
     foreach ($results as $value) {
       /* 対象のメールアドレスのユーザーが承認済みでかつ
          現在の時刻が予約時間 + 90分より前だった場合 */
-      if ($value->status === 'approved' && $value->scheduleUnixTime > time() + 90) {
+      if ($value->status === 'approved' && $value->scheduleUnixTime + 90 > time()) {
           echo "<div>{$last_name}{$first_name}さんは現在予約済みです</div>";
           // ショートコードを実行して一切予約が出来ないカレンダーを表示
           return do_shortcode("[booking_package id=2]");
