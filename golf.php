@@ -19,7 +19,7 @@ function roles_service_shortcode($atts) {
     // テーブル名
     $table_name = $wpdb->prefix . 'booking_package_booked_customers';
 
-    // SQL文
+    // SQL文（唯一のユニーク値であるメールアドレスで検索）
     $sql = $wpdb->prepare("SELECT status, scheduleUnixTime FROM $table_name WHERE emails = %s",  $user_email);
 
     // SQL文の結果を出力
@@ -27,33 +27,40 @@ function roles_service_shortcode($atts) {
 
     // SQL文の結果から条件分岐
     foreach ($results as $value) {
-        /* 対象のメールアドレスのユーザーが承認済みでかつ
-         現在の時刻が予約時間 + 90分より前だった場合 */
+        /* --- ユーザーが承認済みでかつ、現在の時刻が予約時間 + 90分より前だった場合 --- */
         if ($value->status === 'approved' && $value->scheduleUnixTime + 90 > time()) {
-            echo "<div>{$last_name}{$first_name}さんは現在予約済みです</div>";
-        
+            echo "<p>{$last_name}{$first_name}さんは現在予約済みです</p>";
             // ショートコードを実行して予約不可カレンダーを表示
             return do_shortcode("[booking_package id=1 services=25]");
-        } else {
-            // それぞれの権限のサービスIDを割り当て(アーリーバード以下は権限IDを検討中)
-            $service_ids = array(
-                'vip' => 1,  // VIPのサービスID
-                'regular' => 2,  // レギュラーのサービスID
-                '' => 3, // アーリーバードのサービスID
-                '' => 4, // レイトナイトのサービスID
-                '' => 5,  // ウィークデーのサービスID
-                '' => 6, // ウィークデーナイトのサービスID
-                '' => 7, // ナイト & ウイークエンドのサービスID
-                '' => 8, // マンスリー２のサービスID
-                '' => 9, // マンスリー４のサービスID
-            );
+        }
 
-            // 現在の権限に対応するサービスIDを取得(対応する権限がなければ予約不可カレンダーを表示)
+        /* --- ユーザーが承認済みでかつ、本日予約済みだった場合 --- */
+        if ($value->status === 'approved' && date("Y/m/d", $value->scheduleUnixTime) === date("Y/m/d", time())) {
+            echo "<p>{$last_name}{$first_name}さんは本日予約済みです</p>";
+            // ショートコードを実行して予約不可カレンダーを表示
+            return do_shortcode("[booking_package id=1 services=25]");
+        }
+        
+        /* --- 全ての予約不可条件をクリアした場合は予約OK --- */
+        // それぞれの権限のサービスIDを割り当て(アーリーバード以下は権限IDを検討中)
+        $service_ids = array(
+            'vip' => 1,  // VIPのサービスID
+            'regular' => 2,  // レギュラーのサービスID
+            'early-bird' => 3, // アーリーバードのサービスID
+            'late-night' => 4, // レイトナイトのサービスID
+            'weekday' => 5,  // ウィークデーのサービスID
+            'weekday-night' => 6, // ウィークデーナイトのサービスID
+            'night-weekend' => 7, // ナイト & ウイークエンドのサービスID
+            'monthly2' => 8, // マンスリー２のサービスID
+            'monthly4' => 9, // マンスリー４のサービスID
+        );
+
+        // 現在の権限に対応するサービスIDを取得(対応する権限がなければ予約不可カレンダーを表示)
             $service_id = isset($service_ids[$user_roles]) ? $service_ids[$user_roles] : 25;
 
-            // ショートコードを実行してサービスを表示
-            return do_shortcode("[booking_package id=1 services={$service_id}]");
-        }
+        // ショートコードを実行してサービスを表示
+        return do_shortcode("[booking_package id=1 services={$service_id}]");
+        
     }
 }
 ?>
