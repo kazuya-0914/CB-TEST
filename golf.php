@@ -44,7 +44,7 @@ function roles_service_shortcode($atts) {
         /* --- 全ての予約不可条件をクリアした場合は予約OK --- */
         // それぞれの権限のサービスIDを割り当て(アーリーバード以下は権限IDを検討中)
         $service_ids = array(
-            'vip' => 1,  // VIPのサービスID
+            'premium' => 1,  // プレミアムのサービスID
             'regular' => 2,  // レギュラーのサービスID
             'early-bird' => 3, // アーリーバードのサービスID
             'late-night' => 4, // レイトナイトのサービスID
