@@ -24,22 +24,94 @@ div#footer {
   display: flex;
   align-items: center;
 }
-#booking-package_inputFormPanel .row > div{
+#booking-package_inputFormPanel .name {
   width: 30%;
   height: 100%;
   padding: 20px;
   background-color: gray;
   color: white;
 }
+#booking-package_inputFormPanel .name a:link {
+  color: white;
+}
+#booking-package_inputFormPanel .value {
+  width: 70%;
+  height: 100%;
+  padding: 20px;
+  background-color: whitesmoke;
+  color: black;
+}
 #booking-package_inputFormPanel .editButton {
   display: none;
 }
+#booking-package_inputFormPanel .book_now_button {
+  width: 30%;
+  background-color: black;
+  color: white;
+  padding: 10px 30px;
+  margin-top: 20px;
+  border-radius: 5px;
+}
+#booking-package_inputFormPanel .return_form_button {
+  width: 30%;
+  background-color: black;
+  color: white;
+  padding: 10px 30px;
+  margin-top: 20px;
+  border-radius: 5px;
+}
+
 #booking_package_totalCost {
   display: none !important;
+}
+
+#reservationHeader {
+  font-weight: bold;
+  margin-bottom: 20px;
 }
 
 .application-link a:link, .application-link a:visited{
   background-color: black;
   padding: 20px 50px;
   color: white !important;
+}
+
+#booking-package-memberActionPanel {
+  padding: 20px 5px;
+  border-bottom: solid 1px lightgray;
+}
+
+#booking-package {
+  padding: 20px 5px;
+}
+#booking-package .return_button{
+  background-color: black;
+  color: white;
+  padding: 10px 30px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+#booking-package .return_button:hover{
+  background-color: dimgray;
+}
+
+#current_date_in_header {
+  color: crimson;
+  color: mediumblue;
+  font-weight: bold;
+}
+
+#arrow_Right span::after {
+  content: '月';
+}
+#arrow_Left span::after {
+  content: '月';
+}
+
+#selectedDate {
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+#booking-package_schedulePage .closed {
+  cursor: not-allowed !important;
 }
