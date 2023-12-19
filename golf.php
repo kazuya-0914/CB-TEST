@@ -1,4 +1,8 @@
 <?php
+/***************************************************
+ * :: Booking Package 専用ショートコード
+ ***************************************************/
+
 // 専用ショートコードを作成
 add_shortcode('roles_service', 'roles_service_shortcode');
 
@@ -6,6 +10,9 @@ add_shortcode('roles_service', 'roles_service_shortcode');
 function roles_service_shortcode($atts) {
     // タイムゾーンを日本に設定
     date_default_timezone_set('Asia/Tokyo');
+
+    // カレンダー出力のための初期値
+    $output = '';
 
     // 現在ログイン中のユーザーIDを取得
     $user_id = get_current_user_id();
@@ -61,12 +68,13 @@ function roles_service_shortcode($atts) {
 
                 // Max予約回数を超えたら予約不可
                 if ($i >= $max_num) {
-                    echo "<p style=\"color: red; font-weight: bold;\">{$last_name}{$first_name}さんは今月の予約回数を超えました</p>";
+                    $output .= "<p class=\"warning-statement\">{$last_name}{$first_name}さんは今月の予約回数を超えました</p>";
                     // ショートコードを実行して予約不可カレンダーを表示
-                    return do_shortcode("[booking_package id=1 services=25]");
+                    $output .= do_shortcode("[booking_package id=1 services=25]");
+                    return $output;
                 }
             }
-            echo "<p>{$last_name}{$first_name}さんは今月{$i}回予約をしています</p>";
+            $output .=  "<p class=\"times-text\">{$last_name}{$first_name}さんは今月{$i}回予約をしています</p>";
         }
 
         // 予約データチェック
@@ -74,16 +82,18 @@ function roles_service_shortcode($atts) {
             
             /* --- 【NG2】現在の時刻が予約時間 + 90分より前だった場合 --- */
             if ($value->scheduleUnixTime + 90 * 60 > time()) {
-                echo "<p style=\"color: red; font-weight: bold;\">{$last_name}{$first_name}さんは現在予約済みです</p>";
+                $output .= "<p class=\"warning-statement\">{$last_name}{$first_name}さんは現在予約済みです</p>";
                 // ショートコードを実行して予約不可カレンダーを表示
-                return do_shortcode("[booking_package id=1 services=25]");
+                $output .= do_shortcode("[booking_package id=1 services=25]");
+                return $output;
             }
     
             /* --- 【NG3】本日予約済みだった場合 --- */
             if (date("Y/m/d", $value->scheduleUnixTime) === date("Y/m/d", time())) {
-                echo "<p style=\"color: red; font-weight: bold;\">{$last_name}{$first_name}さんは本日予約済みです</p>";
+                $output .= "<p class=\"warning-statement\">{$last_name}{$first_name}さんは本日予約済みです</p>";
                 // ショートコードを実行して予約不可カレンダーを表示
-                return do_shortcode("[booking_package id=1 services=25]");
+                $output .= do_shortcode("[booking_package id=1 services=25]");
+                return $output;
             }
         }
     }
@@ -100,12 +110,14 @@ function roles_service_shortcode($atts) {
         'night-weekend' => 7, // ナイト & ウイークエンドのサービスID
         'monthly2' => 8, // マンスリー２のサービスID
         'monthly4' => 9, // マンスリー４のサービスID
+        'administrator' => 25, // 管理者のサービスID
     );
 
     // 現在の権限に対応するサービスIDを取得(対応する権限がなければ予約不可カレンダーを表示)
     $service_id = isset($service_ids[$user_role]) ? $service_ids[$user_role] : 25;
 
     // ショートコードを実行してサービスを表示
-    return do_shortcode("[booking_package id=1 services={$service_id}]");
+    $output .= do_shortcode("[booking_package id=1 services={$service_id}]");
+    return $output;
 }
 ?>
