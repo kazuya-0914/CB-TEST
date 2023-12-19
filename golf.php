@@ -110,7 +110,6 @@ function roles_service_shortcode($atts) {
         'night-weekend' => 7, // ナイト & ウイークエンドのサービスID
         'monthly2' => 8, // マンスリー２のサービスID
         'monthly4' => 9, // マンスリー４のサービスID
-        'administrator' => 25, // 管理者のサービスID
     );
 
     // 現在の権限に対応するサービスIDを取得(対応する権限がなければ予約不可カレンダーを表示)
