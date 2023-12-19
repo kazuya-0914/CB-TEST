@@ -1,5 +1,8 @@
-<?php 
+<?php
+// 専用ショートコードを作成
 add_shortcode('roles_service', 'roles_service_shortcode');
+
+// 専用ショートコードの実行内容
 function roles_service_shortcode($atts) {
     // 現在ログイン中のユーザーIDを取得
     $user_id = get_current_user_id();
@@ -20,33 +23,66 @@ function roles_service_shortcode($atts) {
         $user_role = $user_roles[0];
     }
 
+    /* --- 唯一のユニーク値であるメールアドレス + 予約が承認済みのデータを検索 --- */
     // $wpdbクエリ
     global $wpdb;
 
     // テーブル名
     $table_name = $wpdb->prefix . 'booking_package_booked_customers';
 
-    // SQL文（唯一のユニーク値であるメールアドレスで検索）
-    $sql = $wpdb->prepare("SELECT status, scheduleUnixTime FROM $table_name WHERE emails = %s",  $user_email);
+    // Booking Packageのメールアドレス形式に合わせる
+    $user_email_sql = '["' . $user_email . '"]';
+
+    // SQL文
+    $sql = $wpdb->prepare("SELECT scheduleUnixTime FROM $table_name
+        WHERE status = 'approved'
+        AND emails = %s",  $user_email_sql);
 
     // SQL文の結果を出力
     $results = $wpdb->get_results($sql, OBJECT);
 
-    // SQL文の結果から条件分岐
+    // SQL文の結果から予約NG判定（予約データがなければスルー）
     if(!empty($results)){
         foreach ($results as $value) {
-            /* --- ユーザーが承認済みでかつ、現在の時刻が予約時間 + 90分より前だった場合 --- */
-            if ($value->status === 'approved' && $value->scheduleUnixTime + 90 > time()) {
-                echo "<p>{$last_name}{$first_name}さんは現在予約済みです</p>";
+            /* --- 【NG1】 マンスリー２、マンスリー4の予約回数制限--- */
+            if ($user_role === 'monthly2' || $user_role === 'monthly4') {
+                // 予約回数カウント
+                $i = 0;
+
+                // Max予約回数
+                if ($user_role === 'monthly2') {
+                    $max_num = 3;
+                } else {
+                    $max_num = 5;
+                }
+
+                // 今月の予約であれば予約回数カウントプラス
+                if (date("Y/m", $value->scheduleUnixTime) === date("Y/m", time())) {
+                    $i++;
+                }
+
+                // Max予約回数を超えたら予約不可
+                if ($i > $max_num) {
+                    echo "<p style=\"color: red; font-weight: bold;\">{$last_name}{$first_name}さんは今月の予約回数を超えました</p>";
+                    // ショートコードを実行して予約不可カレンダーを表示
+                    return do_shortcode("[booking_package id=1 services=13]");
+                } else {
+                    echo "<p>{$last_name}{$first_name}さんは今月{$i}回予約をしています</p>";
+                }
+            }
+            
+            /* --- 【NG2】現在の時刻が予約時間 + 90分より前だった場合 --- */
+            if ($value->scheduleUnixTime + 90 * 60 > time()) {
+                echo "<p style=\"color: red; font-weight: bold;\">{$last_name}{$first_name}さんは現在予約済みです</p>";
                 // ショートコードを実行して予約不可カレンダーを表示
-                return do_shortcode("[booking_package id=1 services=25]");
+                return do_shortcode("[booking_package id=1 services=13]");
             }
     
-            /* --- ユーザーが承認済みでかつ、本日予約済みだった場合 --- */
-            if ($value->status === 'approved' && date("Y/m/d", $value->scheduleUnixTime) === date("Y/m/d", time())) {
-                echo "<p>{$last_name}{$first_name}さんは本日予約済みです</p>";
+            /* --- 【NG3】本日予約済みだった場合 --- */
+            if (date("Y/m/d", $value->scheduleUnixTime) === date("Y/m/d", time())) {
+                echo "<p style=\"color: red; font-weight: bold;\">{$last_name}{$first_name}さんは本日予約済みです</p>";
                 // ショートコードを実行して予約不可カレンダーを表示
-                return do_shortcode("[booking_package id=1 services=25]");
+                return do_shortcode("[booking_package id=1 services=13]");
             }
         }
     }
