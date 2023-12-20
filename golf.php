@@ -3,9 +3,6 @@
  * :: Booking Package 専用ショートコード
  ***************************************************/
 
-// 専用ショートコードを作成
-add_shortcode('roles_service', 'roles_service_shortcode');
-
 // 専用ショートコードの実行内容
 function roles_service_shortcode($atts) {
     // タイムゾーンを日本に設定
@@ -119,4 +116,33 @@ function roles_service_shortcode($atts) {
     $output .= do_shortcode("[booking_package id=1 services={$service_id}]");
     return $output;
 }
+
+// 専用ショートコードを作成
+add_shortcode('roles_service', 'roles_service_shortcode');
+
+/***************************************************
+ * :: 管理者以外のログイン時のリダイレクト先
+ ***************************************************/
+
+ // フックの実行内容
+function custom_login_redirect($redirect_to, $request, $user) {
+
+    // ログインが成功した場合にユーザーの権限などに応じて遷移先を変更
+    if (isset($user->roles) && is_array($user->roles)) {
+        
+        // ログインユーザーが管理者の場合
+        if (in_array('administrator', $user->roles)) {
+          return home_url('/wp-admin'); // ダッシュボートのURLを指定
+        } else {
+          return home_url('/members'); // 会員専用ページのURLを指定
+        }
+    }
+
+    // ログインが成功したが権限が不明な場合はトップページのリダイレクト先
+    return home_url('/');
+}
+
+// フックを実行
+add_filter('login_redirect', 'custom_login_redirect', 10, 3);
+
 ?>
